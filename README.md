@@ -1,4 +1,4 @@
-## Google Sheet Spark Connector
+# Google Sheet Spark Connector
 
 The Google Sheet Spark Connector is a Python package that makes it easy to do 2 things:
   1. Ingest data from a google spreadsheet into your Spark environment
