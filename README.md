@@ -180,7 +180,7 @@ refresh_data_in_sheet(
     workbook_id='INSERT_WORKBOOK_ID',
     row_number_to_push_into=2,
     column_letter_to_push_into='A',
-    starting_row_filter_index=0,
+    starting_row_filter_index=1,
     starting_column_filter_index=0,
     apply_filter_to_column_index=1,
     credentials_dict=credentials_dict
@@ -192,7 +192,7 @@ refresh_data_in_sheet(
   - The **row** is determined by the `row_number_to_push_into` variable (2 = row 2)
 
 - There will also be a filter applied to `column B`, beginning in row 1:
-  - The **row** that the filter is applied to is determined by the `starting_row_filter_index` variable (0 = row 1).
+  - The **row** that the filter is applied to is determined by the `starting_row_filter_index` variable (1 = row 2).
   - The **column** that the filter starts at is determined by the `starting_column_filter_index` variable (0 = Column A).
   - The **column** that the filter is applied to is determined by the `apply_filter_to_column_index` variable (1 = Column B).
     - To not have a filter applied, be sure to not pass `apply_filter_to_column_index` into the kwargs
