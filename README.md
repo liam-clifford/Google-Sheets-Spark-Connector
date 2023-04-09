@@ -8,6 +8,7 @@ It utilizes the [gspread](https://docs.gspread.org/en/v5.7.0/) Python library fo
 
 
 # Table of Contents
+- [Related Medium Post](#related-medium-post)
 - [Prerequisites](#prerequisites)
 - [Credentials](#credentials)
 - [Requirements](#requirements)
@@ -24,7 +25,10 @@ It utilizes the [gspread](https://docs.gspread.org/en/v5.7.0/) Python library fo
   - [Scenario 2](#scenario-2)
   - [Scenario 2](#scenario-3)
 
-
+# Shameless Plug
+- Related Medium Post
+  - Here's a [link]([url](https://medium.com/@liam_clifford/google-sheets-spark-connector-7fa7a8c2f60e) to a (hopefully) less technical version of this! 
+  
 # Prerequisites
 - In order to use the code, you will need to have a google service account user. 
   - This is mandoratory because it will allow programmatic access to the Google Sheets API.
