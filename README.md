@@ -8,7 +8,7 @@ It utilizes the [gspread](https://docs.gspread.org/en/v5.7.0/) Python library fo
 
 
 # Table of Contents
-- [Related Medium Post](#related-medium-post)
+- [Shameless Plug](#shameless-plug)
 - [Prerequisites](#prerequisites)
 - [Credentials](#credentials)
 - [Requirements](#requirements)
