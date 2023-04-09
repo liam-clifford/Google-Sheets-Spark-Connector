@@ -27,7 +27,7 @@ It utilizes the [gspread](https://docs.gspread.org/en/v5.7.0/) Python library fo
 
 # Shameless Plug
 - Related Medium Post
-  - Here's a [link]([url](https://medium.com/@liam_clifford/google-sheets-spark-connector-7fa7a8c2f60e) to a (hopefully) less technical version of this! 
+  - Here's a [link](https://medium.com/@liam_clifford/google-sheets-spark-connector-7fa7a8c2f60e) to a (hopefully) less technical version of this! 
   
 # Prerequisites
 - In order to use the code, you will need to have a google service account user. 
