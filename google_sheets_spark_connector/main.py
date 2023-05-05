@@ -19,7 +19,7 @@ import re
 import json
 import pandas as pd
 
-from python_spark_gsheet_connector.credentials import get_credentials_file
+from google_sheets_spark_connector.credentials import get_credentials_file
 
 spark = SparkSession \
     .builder \
