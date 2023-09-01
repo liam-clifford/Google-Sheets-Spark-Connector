@@ -608,7 +608,7 @@ def refresh_data_in_sheet(sheet_name_or_id,\
 
     # determine end row of sheet clearing step (slated to happen next)
     end_row = kwargs.get('do_not_clear_entire_target_sheet_range', '')
-    if end_row != '':
+    if str(end_row).lower() == 'true':
       end_row = size_of_df+row_number_to_push_into+1
 
     # Clear the sheet data from the starting cell to the end of the row
