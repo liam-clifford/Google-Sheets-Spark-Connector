@@ -570,6 +570,7 @@ def refresh_data_in_sheet(sheet_name_or_id,\
         - starting_column_filter_index (int, optional): The 0-based index of the starting column for applying the filter. Default is 0.
         - apply_filter_to_column_index (int, optional): The 0-based index of the column to apply the filter to. Default is 0.
         - string_exclusion_filter (str, optional): A string to exclude from the filter. Default is an empty string.
+        - do_not_clear_entire_target_sheet_range (bool, optional): If true, then it will only clear the range of the cells that your df will eventually replace
     Returns:
     - None
     """
@@ -595,6 +596,9 @@ def refresh_data_in_sheet(sheet_name_or_id,\
     # convert spark_df into proper payload format needed to handle various Google Sheet API requests 
     spark_body_list_of_list = gsheet_pandas_conversion(spark_df, push_df_as_html=kwargs.get('push_df_as_html',False))
 
+    # get size of df
+    size_of_df = len(spark_body_list_of_list)
+                              
     # Write headers to the sheet
     headers = [[col for col in spark_df.columns]]
     update_sheet(client=gc,
@@ -602,9 +606,15 @@ def refresh_data_in_sheet(sheet_name_or_id,\
                  sheet=sheet,
                  cell_range=f"{column_letter_to_push_into}{row_number_to_push_into}")
 
+    # determine end row of sheet clearing step (slated to happen next)
+    end_row = kwargs.get('do_not_clear_entire_target_sheet_range', '')
+    if end_row != '':
+      end_row = size_of_df+row_number_to_push_into+1
+
     # Clear the sheet data from the starting cell to the end of the row
     end_col = column_string(sheet.col_count - kwargs.get('preserve_last_n_columns', 0))
-    gc.values_clear(f"{sheet_name}!{column_letter_to_push_into}{row_number_to_push_into+1}:{end_col}")
+    range_to_clear = f"{sheet_name}!{column_letter_to_push_into}{row_number_to_push_into+1}:{end_col}{end_row}"
+    gc.values_clear(range_to_clear)
 
     # Wait for the specified amount of time between sheet updates
     time.sleep(kwargs.get('pause_between_sheet_updates', 1))
