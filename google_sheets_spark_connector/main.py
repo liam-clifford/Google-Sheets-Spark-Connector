@@ -308,6 +308,20 @@ def gsheet_pandas_conversion(spark_df, **kwargs) -> Union[str, List[List[Union[s
     Returns:
         If `push_df_as_html` is True, an HTML table string. Otherwise, a list of lists representing the Pandas DataFrame.
     """
+  
+    # Get the original column names
+    original_columns = spark_df.columns
+    
+    # Rename duplicate columns to make them unique
+    new_columns = []
+    for x in range(len(original_columns)):
+        if original_columns[:x].count(original_columns[x]) >= 1:
+            new_columns.append(str(original_columns[x]) + str(original_columns[:x].count(original_columns[x])))
+        else:
+            new_columns.append(str(original_columns[x]))
+
+    spark_df = spark_df.toDF(*new_columns)
+
     # Convert boolean and array columns to string
     for col_name, col_type in spark_df.dtypes:
         if col_type == 'boolean':
@@ -317,8 +331,8 @@ def gsheet_pandas_conversion(spark_df, **kwargs) -> Union[str, List[List[Union[s
         else:
             spark_df = spark_df.withColumn(col_name, when(col('`'+col_name+'`').isNull(), '').otherwise(col('`'+col_name+'`')))
 
-    # Convert Spark DataFrame to Pandas DataFrame
-    spark_df = spark_df.toPandas()
+    # Convert Spark DataFrame to Pandas DataFrame and remap original column names
+    spark_df = spark_df.toDF(*original_columns).toPandas()
 
     if kwargs and kwargs.get('push_df_as_html',False):
         # Generate HTML table from Pandas DataFrame
