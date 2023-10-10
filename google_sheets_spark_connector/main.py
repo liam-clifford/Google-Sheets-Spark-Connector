@@ -624,11 +624,12 @@ def refresh_data_in_sheet(sheet_name_or_id,\
     end_row = kwargs.get('do_not_clear_entire_target_sheet_range', False)
     if end_row:
       end_row = size_of_df+row_number_to_push_into+1
+      end_col = column_string(len(spark_body_list_of_list[0]))
     if not end_row:
       end_row = ''
+      end_col = column_string(sheet.col_count - kwargs.get('preserve_last_n_columns', 0))
 
     # Clear the sheet data from the starting cell to the end of the row
-    end_col = column_string(sheet.col_count - kwargs.get('preserve_last_n_columns', 0))
     range_to_clear = f"{sheet_name}!{column_letter_to_push_into}{row_number_to_push_into+1}:{end_col}{end_row}"
     gc.values_clear(range_to_clear)
 
