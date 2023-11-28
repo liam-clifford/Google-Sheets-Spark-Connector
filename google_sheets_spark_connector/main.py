@@ -233,6 +233,25 @@ def remove_filter(client, sheet):
     }
     client.batch_update(body)
 
+def hide_or_unhide_sheet(spreadsheet_id, sheet_id, hide_or_unhide_boolean, credentials_dict=credentials_dict):
+    ss = auth_google_sheet(
+        spreadsheet_id=spreadsheet_id, credentials_dict=credentials_dict
+    )
+    body = {
+        "requests": [
+            {
+                "updateSheetProperties": {
+                    "properties": {
+                        "sheetId": sheet_id,
+                        "hidden": hide_or_unhide_boolean,
+                    },
+                    "fields": "hidden",
+                }
+            }
+        ]
+    }
+    ss.batch_update(body)
+
 def apply_filter(client, sheet, **kwargs: Any) -> None:
     """
     Reapply filters to a Google Sheet.
