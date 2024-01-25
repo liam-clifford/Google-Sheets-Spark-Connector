@@ -141,6 +141,25 @@ def client(credentials_dict: Dict) -> Client:
     credentials, session = get_credentials(credentials_dict)
     return Client(credentials, session)
 
+
+def open_spreadsheet_by_id(retries,credentials_dict,spreadsheet_id):
+    while retries < 5:
+        try:
+            gc = client(credentials_dict).open_by_key(spreadsheet_id)
+            break
+
+        except Exception as e:
+            print(f"Error: {e}")
+            retries += 1
+            if retries < 5:
+                print(f"Retrying... (Attempt {retries}/5)")
+                time.sleep(20)
+            else:
+                print("Max retries reached. Unable to open spreadsheet.")
+                raise
+    return gc
+
+
 def service(credentials_dict: Dict):
     """
     Returns an instance of the Google Sheets API client.
@@ -175,7 +194,7 @@ def auth_google_sheet(spreadsheet_id: str, credentials_dict: Dict):
     client = Client(credentials, session)
     if len(spreadsheet_id) == 44:
         try:
-            gsheet = client.open_by_key(spreadsheet_id)
+            gsheet = open_spreadsheet_by_id(retries=0,credentials_dict=credentials_dict,spreadsheet_id=workbook_id)                
         except:
             gsheet = client.open(spreadsheet_id)
     else:
@@ -387,7 +406,9 @@ def get_all_sheet_row_metadata(spreadsheet_id: str, sheet_id: str, credentials_d
     Returns:
         List[Dict[str, Any]]: A list of dictionaries representing metadata for each row in the sheet.
     """
-    gc = client(credentials_dict).open_by_key(spreadsheet_id)
+    
+    gc = open_spreadsheet_by_id(retries=0,credentials_dict=credentials_dict,spreadsheet_id=spreadsheet_id)
+                
     sheet = gc.get_worksheet_by_id(int(sheet_id))
     sheet_properties = sheet._properties
     ranges = [sheet_properties['title']]
@@ -411,7 +432,7 @@ def reprocess_sheet_data(workbook_id: str, sheet_id: str, data: List[Dict[str, A
     """
 
     # Open the workbook by ID
-    gc = client(credentials_dict).open_by_key(workbook_id)
+    gc = open_spreadsheet_by_id(retries=0,credentials_dict=credentials_dict,spreadsheet_id=spreadsheet_id)
 
     # Define the batch update request body
     request_body = {
