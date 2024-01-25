@@ -480,7 +480,7 @@ def push_df_as_html_to_sheet(workbook_id: str,\
     """
 
     # Open workbook
-    gc = client(credentials_dict).open_by_key(workbook_id)
+    gc = open_spreadsheet_by_id(retries=0,credentials_dict=credentials_dict,spreadsheet_id=workbook_id)
     
     # Update sheet with HTML data
     body = {
@@ -568,7 +568,8 @@ def remove_sheet_formatting_from_row_index_downwards(spreadsheet_id: str, sheet_
     gc = client(credentials_dict)
     
     # Get the specified sheet by ID
-    sheet = gc.open_by_key(spreadsheet_id).get_worksheet_by_id(sheet_id)
+    wb = open_spreadsheet_by_id(retries=0,credentials_dict=credentials_dict,spreadsheet_id=spreadsheet_id)
+    sheet = wb.get_worksheet_by_id(sheet_id)
     
     # Construct the batch update request body
     body = {
@@ -742,7 +743,7 @@ def read_google_sheet(
     gc = client(credentials) # creates a gspread client object using the provided credentials
 
     try:
-        spreadsheet = gc.open_by_key(workbook_id) # tries to open the workbook by ID
+        spreadsheet = open_spreadsheet_by_id(retries=0,credentials_dict=credentials,spreadsheet_id=workbook_id) # tries to open the workbook by ID
     except:
         spreadsheet = gc.open(workbook_id) # if that fails, tries to open the workbook by name
 
