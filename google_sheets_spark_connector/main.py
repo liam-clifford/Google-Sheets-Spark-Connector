@@ -230,6 +230,8 @@ def update_sheet(client, data, sheet, cell_range):
             print(f'Initial sheet update failed due to error: {e}\nTrying again in {t} seconds')
             time.sleep(t)
             client.values_update(sheet_address, params={'valueInputOption': 'USER_ENTERED'}, body={'values': data})
+        else:
+            print(f'Error (`update_sheets`): {e}')
 
 def remove_filter(client, sheet):
     """
