@@ -345,6 +345,13 @@ def auto_fit_cols(client, sheet, **kwargs: Any) -> None:
     
     client.batch_update(body)
 
+def set_all_spark_df_columns_to_strings(spark_df):
+    # CONVERTS SPARK DF TO PANDAS > CHANGES ALL COLUMNS TO STRINGS > BACK TO SPARK DF
+    p_df               = spark_df.toPandas()
+    p_df[p_df.columns] = p_df[p_df.columns].astype(str)
+    spark_df           = spark.createDataFrame(p_df)
+    return spark_df
+    
 def gsheet_pandas_conversion(spark_df, **kwargs) -> Union[str, List[List[Union[str, int, float]]]]:
     """
     Converts a PySpark DataFrame to a Pandas DataFrame.
@@ -369,14 +376,18 @@ def gsheet_pandas_conversion(spark_df, **kwargs) -> Union[str, List[List[Union[s
 
     spark_df = spark_df.toDF(*new_columns)
 
-    # Convert boolean and array columns to string
-    for col_name, col_type in spark_df.dtypes:
-        if col_type == 'boolean':
-            spark_df = spark_df.withColumn(col_name, when(col(col_name).isNull(), False).otherwise(col(col_name)).cast('string'))
-        elif col_type.find('array') != -1:
-            spark_df = spark_df.withColumn(col_name, when(col(col_name).isNull(), array()).otherwise(col(col_name)).cast('string'))
-        else:
-            spark_df = spark_df.withColumn(col_name, when(col('`'+col_name+'`').isNull(), '').otherwise(col('`'+col_name+'`')))
+    # ADDED 03.28.24 > Converts all columns to strings (for simpler approach to payload compatibility)
+    spark_df = set_all_spark_df_columns_to_strings(spark_df)
+    
+    # BLOCKED OFF BELOW 03.28.24
+    # # Convert boolean and array columns to string
+    # for col_name, col_type in spark_df.dtypes:
+    #     if col_type == 'boolean':
+    #         spark_df = spark_df.withColumn(col_name, when(col(col_name).isNull(), False).otherwise(col(col_name)).cast('string'))
+    #     elif col_type.find('array') != -1:
+    #         spark_df = spark_df.withColumn(col_name, when(col(col_name).isNull(), array()).otherwise(col(col_name)).cast('string'))
+    #     else:
+    #         spark_df = spark_df.withColumn(col_name, when(col('`'+col_name+'`').isNull(), '').otherwise(col('`'+col_name+'`')))
 
     # Convert Spark DataFrame to Pandas DataFrame and remap original column names
     spark_df = spark_df.toDF(*original_columns).toPandas()
