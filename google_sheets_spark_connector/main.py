@@ -375,8 +375,19 @@ def gsheet_pandas_conversion(spark_df, **kwargs) -> Union[str, List[List[Union[s
             new_columns.append(str(original_columns[x]))
 
     spark_df = spark_df.toDF(*new_columns)
+        
+    # ADDED BELOW 03.28.24
+    for dataType in spark_df.dtypes:
+        col_name = dataType[0]
+        col_type = dataType[1]
 
-    # ADDED 03.28.24 > Converts all columns to strings (for simpler approach to payload compatibility)
+        if col_type=='boolean':
+        spark_df = spark_df.withColumn(col_name,when(col(col_name).isNull(),False))
+
+        elif col_type.find('array') != -1:
+        spark_df = spark_df.withColumn(col_name,when(col(col_name).isNull(),array()))
+
+    # converts all columns to strings
     spark_df = set_all_spark_df_columns_to_strings(spark_df)
     
     # BLOCKED OFF BELOW 03.28.24
