@@ -129,6 +129,24 @@ def get_credentials(credentials_dict: Dict) -> Tuple[ServiceAccountCredentials, 
     session = create_assertion_session(credentials_dict)
     return credentials, session
 
+def retry_api_call(api_call):
+    retries = 5
+    for attempt in range(retries):
+        try:
+            return api_call
+        except (gspread.exceptions.APIError, HTTPError) as error:
+            if isinstance(error, gspread.exceptions.APIError) and error.response.status_code == 429:
+                print("Rate limit exceeded. Retrying in 60 seconds...")
+                time.sleep(60)
+            else:
+                print("An error occurred:", error)
+                raise
+        except Exception as e:
+            print("An unexpected error occurred:", e)
+            raise
+    print("Maximum retries reached. Exiting...")
+    raise
+
 def client(credentials_dict: Dict) -> Client:
     """
     Returns an authorized client object for using the Google Sheets API.
@@ -764,21 +782,21 @@ def read_google_sheet(
       temp_view_name: Optional[str] = None, # optional string specifying a temporary view name for the data in the Spark DataFrame
     ) -> DataFrame: # returns a Spark DataFrame containing the data from the Google Sheet
 
-    gc = client(credentials) # creates a gspread client object using the provided credentials
+    gc = retry_api_call(client(credentials)) # creates a gspread client object using the provided credentials
 
     try:
-        spreadsheet = open_spreadsheet_by_id(retries=0,credentials_dict=credentials,spreadsheet_id=workbook_id) # tries to open the workbook by ID
+        spreadsheet = retry_api_call(open_spreadsheet_by_id(retries=0,credentials_dict=credentials,spreadsheet_id=workbook_id)) # tries to open the workbook by ID
     except:
-        spreadsheet = gc.open(workbook_id) # if that fails, tries to open the workbook by name
+        spreadsheet = retry_api_call(gc.open(workbook_id)) # if that fails, tries to open the workbook by name
 
-    worksheet = (spreadsheet.get_worksheet_by_id(int(sheet_id)) # gets the worksheet by ID if sheet_id is an integer
+    worksheet = (retry_api_call(spreadsheet.get_worksheet_by_id(int(sheet_id))) # gets the worksheet by ID if sheet_id is an integer
                  if re.match(r"^\d+$", sheet_id) # else gets the worksheet by name
-                 else spreadsheet.worksheet(sheet_id))
+                 else retry_api_call(spreadsheet.worksheet(sheet_id)))
 
     range_data = (f"{worksheet.title}!{cell_range}" # specifies a cell range to retrieve if cell_range is provided
                   if cell_range else worksheet.title)
 
-    values = spreadsheet.values_get(range_data) # retrieves the values within the specified cell range
+    values = retry_api_call(spreadsheet.values_get(range_data)) # retrieves the values within the specified cell range
     values = values['values'] # extracts the values from the response
     df = pd.DataFrame(values) # creates a pandas DataFrame from the values
     df.fillna("",inplace=True) # replaces any null values with empty strings
