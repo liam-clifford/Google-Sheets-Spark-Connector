@@ -129,23 +129,22 @@ def get_credentials(credentials_dict: Dict) -> Tuple[ServiceAccountCredentials, 
     session = create_assertion_session(credentials_dict)
     return credentials, session
 
-def retry_api_call(api_call):
+def retry_api_call(api_call,sleep_time=60):
     retries = 5
     for attempt in range(retries):
         try:
             return api_call
-        except (gspread.exceptions.APIError, HTTPError) as error:
-            if isinstance(error, gspread.exceptions.APIError) and error.response.status_code == 429:
-                print("Rate limit exceeded. Retrying in 60 seconds...")
-                time.sleep(60)
+        except Exception as error:
+            error_message = str(error)
+            retry_errors = ['RATE_LIMIT_EXCEEDED', 'RESOURCE_EXHAUSTED', '429', 'SpreadsheetNotFound']
+            if any(err in error_message for err in retry_errors):
+                print(f"Retryable error occurred: {error_message}. Retrying...")
+                time.sleep(sleep_time)  # Adjust as needed, maybe use exponential backoff
             else:
-                print("An error occurred:", error)
+                print("An error occurred:", error_message)
                 raise
-        except Exception as e:
-            print("An unexpected error occurred:", e)
-            raise
     print("Maximum retries reached. Exiting...")
-    raise
+    raise RuntimeError("Maximum retries reached.")
 
 def client(credentials_dict: Dict) -> Client:
     """
