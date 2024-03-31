@@ -133,7 +133,7 @@ def retry_api_call(api_call,sleep_time=60):
     retries = 5
     for attempt in range(retries):
         try:
-            return api_call
+            return api_call()
         except Exception as error:
             error_message = str(error)
             retry_errors = ['RATE_LIMIT_EXCEEDED', 'RESOURCE_EXHAUSTED', '429', 'SpreadsheetNotFound']
@@ -781,21 +781,21 @@ def read_google_sheet(
       temp_view_name: Optional[str] = None, # optional string specifying a temporary view name for the data in the Spark DataFrame
     ) -> DataFrame: # returns a Spark DataFrame containing the data from the Google Sheet
 
-    gc = retry_api_call(client(credentials)) # creates a gspread client object using the provided credentials
+    gc = retry_api_call(lambda: client(credentials)) # creates a gspread client object using the provided credentials
 
     try:
-        spreadsheet = retry_api_call(open_spreadsheet_by_id(retries=0,credentials_dict=credentials,spreadsheet_id=workbook_id)) # tries to open the workbook by ID
+        spreadsheet = retry_api_call(lambda: open_spreadsheet_by_id(retries=0,credentials_dict=credentials,spreadsheet_id=workbook_id)) # tries to open the workbook by ID
     except:
-        spreadsheet = retry_api_call(gc.open(workbook_id)) # if that fails, tries to open the workbook by name
+        spreadsheet = retry_api_call(lambda: gc.open(workbook_id)) # if that fails, tries to open the workbook by name
 
-    worksheet = (retry_api_call(spreadsheet.get_worksheet_by_id(int(sheet_id))) # gets the worksheet by ID if sheet_id is an integer
+    worksheet = (retry_api_call(lambda: spreadsheet.get_worksheet_by_id(int(sheet_id))) # gets the worksheet by ID if sheet_id is an integer
                  if re.match(r"^\d+$", sheet_id) # else gets the worksheet by name
-                 else retry_api_call(spreadsheet.worksheet(sheet_id)))
+                 else retry_api_call(lambda: spreadsheet.worksheet(sheet_id)))
 
     range_data = (f"{worksheet.title}!{cell_range}" # specifies a cell range to retrieve if cell_range is provided
                   if cell_range else worksheet.title)
 
-    values = retry_api_call(spreadsheet.values_get(range_data)) # retrieves the values within the specified cell range
+    values = retry_api_call(lambda: spreadsheet.values_get(range_data)) # retrieves the values within the specified cell range
     values = values['values'] # extracts the values from the response
     df = pd.DataFrame(values) # creates a pandas DataFrame from the values
     df.fillna("",inplace=True) # replaces any null values with empty strings
