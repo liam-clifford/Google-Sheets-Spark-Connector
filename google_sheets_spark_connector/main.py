@@ -398,8 +398,8 @@ def gsheet_pandas_conversion(spark_df, **kwargs) -> Union[str, List[List[Union[s
         col_name = dataType[0]
         col_type = dataType[1]
 
-        if col_type=='boolean':
-            spark_df = spark_df.withColumn(col_name,when(col(col_name).isNull(),False))
+        if col_type == 'boolean':
+            spark_df = spark_df.withColumn(col_name, when(col(col_name).isNull(), False).otherwise(col(col_name)))
 
         elif col_type.find('array') != -1:
             spark_df = spark_df.withColumn(col_name,when(col(col_name).isNull(),array()))
