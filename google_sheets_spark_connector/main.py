@@ -406,6 +406,9 @@ def gsheet_pandas_conversion(spark_df, **kwargs) -> Union[str, List[List[Union[s
 
     # converts all columns to strings
     spark_df = set_all_spark_df_columns_to_strings(spark_df)
+
+    # replace NaN / None / none with blanks
+    spark_df = spark_df.fillna('').replace('NaN','-').replace('nan','-').replace('None','-').replace('none','-')
     
     # BLOCKED OFF BELOW 03.28.24
     # # Convert boolean and array columns to string
