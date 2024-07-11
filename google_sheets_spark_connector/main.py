@@ -565,6 +565,10 @@ def push_df_as_html_to_sheet(workbook_id: str,\
                             effective_format['verticalAlignment'] = kwargs['verticalAlignment']
                         if kwargs.get('wrapStrategy'):
                             effective_format['wrapStrategy'] = kwargs['wrapStrategy']
+                        
+                        if x.get('hyperlink')!=None and x.get('textFormatRuns', {}) == {}:
+                            textFormatRuns = [{'format': {'link': {'uri': x.get('hyperlink')}}}]
+                            x.update({'textFormatRuns': textFormatRuns})
                             
                         x.update({'effectiveFormat': effective_format})
                         
