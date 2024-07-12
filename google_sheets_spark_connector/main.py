@@ -566,7 +566,8 @@ def push_df_as_html_to_sheet(workbook_id: str,\
                         if kwargs.get('wrapStrategy'):
                             effective_format['wrapStrategy'] = kwargs['wrapStrategy']
                         
-                        if x.get('hyperlink')!=None and x.get('textFormatRuns', {}) == {}:
+                        if x.get('hyperlink')!=None and x.get('textFormatRuns', {}) == {} and \
+                          '=HYPERLINK' not in x.get('userEnteredValue',{}).get('formulaValue',''):
                             textFormatRuns = [{'format': {'link': {'uri': x.get('hyperlink')}}}]
                             x.update({'textFormatRuns': textFormatRuns})
                             
