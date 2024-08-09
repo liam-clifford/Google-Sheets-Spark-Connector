@@ -566,12 +566,31 @@ def push_df_as_html_to_sheet(workbook_id: str,\
                         if kwargs.get('wrapStrategy'):
                             effective_format['wrapStrategy'] = kwargs['wrapStrategy']
                         
+                        x.update({'effectiveFormat': effective_format})
+                        
                         if x.get('hyperlink')!=None and x.get('textFormatRuns', {}) == {} and \
                           '=HYPERLINK' not in x.get('userEnteredValue',{}).get('formulaValue',''):
                             textFormatRuns = [{'format': {'link': {'uri': x.get('hyperlink')}}}]
                             x.update({'textFormatRuns': textFormatRuns})
+
+                        # Check if 'link' is already present in textFormatRuns
+                        text_format_runs = x.get('textFormatRuns', [])
+                        link_present = any('link' in entry.get('format', {}) for entry in text_format_runs)
+
+                        # If hyperlink is present and link is not already in textFormatRuns
+                        if x.get('hyperlink') is not None and not link_present and \
+                          x.get('userEnteredValue',{}).get('formulaValue','') == '':
+                            # Create a new format dictionary with the existing format
+                            new_format = {}
+                            for entry in text_format_runs:
+                                new_format.update(entry.get('format', {}))
                             
-                        x.update({'effectiveFormat': effective_format})
+                            # Add the hyperlink to the new format
+                            new_format['link'] = {'uri': x.get('hyperlink')}
+                            
+                            # Update textFormatRuns with the new format
+                            text_format_runs = [{'format': new_format}]
+                            x.update({'textFormatRuns': text_format_runs})
                         
                         if kwargs.get('fontFamily') or kwargs.get('fontSize'):
                             try:
