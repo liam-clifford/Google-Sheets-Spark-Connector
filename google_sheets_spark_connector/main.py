@@ -27,9 +27,6 @@ spark = SparkSession \
     .getOrCreate()
 # OPTIONAL IF USING Databricks
 
-# CHANGE
-# CHANGE 2
-
 def generate_credentials_dict(credentials: Dict):
   
     """

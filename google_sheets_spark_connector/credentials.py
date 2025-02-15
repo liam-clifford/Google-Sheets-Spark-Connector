@@ -6,7 +6,5 @@ json_credentials = {
     "client_id": "YOUR_CLIENT_ID_HERE"
 }
 
-# test
-
 def get_credentials_file():
     return json_credentials
