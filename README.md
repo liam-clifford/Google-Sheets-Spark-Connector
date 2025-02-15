@@ -6,8 +6,6 @@ The Google Sheet Spark Connector is a Python package that makes it easy to do 2 
 
 It utilizes the [gspread](https://docs.gspread.org/en/v5.7.0/) Python library for basic functionality ([outlined below](#examples)), but also includes [functions](#advanced-use-cases) that use the [Google Sheets API](https://developers.google.com/sheets/api/guides/concepts) to do more advanced operations not covered by gspread.
 
-<!-- CHANGE 3 -->
-
 # Table of Contents
 - [Shameless Plug](#shameless-plug)
 - [Prerequisites](#prerequisites)
